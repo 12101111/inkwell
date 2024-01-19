@@ -198,7 +198,7 @@ impl<'ctx> Module<'ctx> {
         }
 
         if !err_str.is_null() {
-            let _ = LLVMString::new(err_str);
+            let _ = unsafe { LLVMString::new(err_str) };
         }
 
         Ok(())
@@ -771,7 +771,7 @@ impl<'ctx> Module<'ctx> {
         }
 
         if !err_str.is_null() {
-            let _ = LLVMString::new(err_str);
+            let _ = unsafe { LLVMString::new(err_str) };
         }
 
         Ok(())
