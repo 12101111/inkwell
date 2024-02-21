@@ -131,6 +131,22 @@ target-all = [
     "target-riscv",
     "target-loongarch",
 ]
+
+disable-alltargets-init = [
+    "llvm-sys-40?/disable-alltargets-init",
+    "llvm-sys-50?/disable-alltargets-init",
+    "llvm-sys-60?/disable-alltargets-init",
+    "llvm-sys-70?/disable-alltargets-init",
+    "llvm-sys-80?/disable-alltargets-init",
+    "llvm-sys-90?/disable-alltargets-init",
+    "llvm-sys-100?/disable-alltargets-init",
+    "llvm-sys-110?/disable-alltargets-init",
+    "llvm-sys-120?/disable-alltargets-init",
+    "llvm-sys-130?/disable-alltargets-init",
+    "llvm-sys-140?/disable-alltargets-init",
+    "llvm-sys-150?/disable-alltargets-init",
+    "llvm-sys-160?/disable-alltargets-init",
+]
 experimental = ["static-alloc"]
 nightly = ["inkwell_internals/nightly"]
 
