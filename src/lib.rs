@@ -60,6 +60,8 @@ pub extern crate llvm_sys_160 as llvm_sys;
 pub extern crate llvm_sys_170 as llvm_sys;
 #[cfg(feature = "llvm18-0")]
 pub extern crate llvm_sys_180 as llvm_sys;
+#[cfg(feature = "llvm19-1")]
+pub extern crate llvm_sys_191 as llvm_sys;
 #[cfg(feature = "llvm4-0")]
 pub extern crate llvm_sys_40 as llvm_sys;
 #[cfg(feature = "llvm5-0")]
@@ -130,7 +132,8 @@ assert_unique_used_features! {
     "llvm15-0",
     "llvm16-0",
     "llvm17-0",
-    "llvm18-0"
+    "llvm18-0",
+    "llvm19-1"
 }
 
 /// Defines the address space in which a global will be inserted.
@@ -376,6 +379,16 @@ pub enum AtomicRMWBinOp {
     #[llvm_versions(15..)]
     #[llvm_variant(LLVMAtomicRMWBinOpFMin)]
     FMin,
+
+    /// Increments the value in memory, wrapping back to zero when incremented above the input value.
+    #[llvm_versions(19.1..)]
+    #[llvm_variant(LLVMAtomicRMWBinOpUIncWrap)]
+    UIncWrap,
+
+    /// Decrements the value in memory, wrapping back to the input value when decremented below zero.
+    #[llvm_versions(19.1..)]
+    #[llvm_variant(LLVMAtomicRMWBinOpUDecWrap)]
+    UDecWrap,
 }
 
 /// Defines the optimization level used to compile a `Module`.

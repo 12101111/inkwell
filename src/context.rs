@@ -15,8 +15,12 @@ use llvm_sys::core::LLVMGetTypeByName2;
 use llvm_sys::core::LLVMMetadataTypeInContext;
 #[llvm_versions(15..)]
 use llvm_sys::core::LLVMPointerTypeInContext;
+#[llvm_versions(..18)]
+use llvm_sys::core::LLVMConstStringInContext;
+#[llvm_versions(19.1..)]
+use llvm_sys::core::LLVMConstStringInContext2;
 use llvm_sys::core::{
-    LLVMAppendBasicBlockInContext, LLVMConstStringInContext, LLVMConstStructInContext, LLVMContextCreate,
+    LLVMAppendBasicBlockInContext, LLVMConstStructInContext, LLVMContextCreate,
     LLVMContextDispose, LLVMContextSetDiagnosticHandler, LLVMCreateBuilderInContext, LLVMCreateEnumAttribute,
     LLVMCreateStringAttribute, LLVMDoubleTypeInContext, LLVMFP128TypeInContext, LLVMFloatTypeInContext,
     LLVMGetGlobalContext, LLVMGetMDKindIDInContext, LLVMHalfTypeInContext, LLVMInsertBasicBlockInContext,
@@ -373,12 +377,25 @@ impl ContextImpl {
         unsafe { Attribute::new(LLVMCreateTypeAttribute(self.0, kind_id, type_ref.as_type_ref())) }
     }
 
+    #[llvm_versions(..18)]
     fn const_string<'ctx>(&self, string: &[u8], null_terminated: bool) -> ArrayValue<'ctx> {
         unsafe {
             ArrayValue::new(LLVMConstStringInContext(
                 self.0,
                 string.as_ptr() as *const ::libc::c_char,
                 string.len() as u32,
+                !null_terminated as i32,
+            ))
+        }
+    }
+
+    #[llvm_versions(19.1..)]
+    fn const_string<'ctx>(&self, string: &[u8], null_terminated: bool) -> ArrayValue<'ctx> {
+        unsafe {
+            ArrayValue::new(LLVMConstStringInContext2(
+                self.0,
+                string.as_ptr() as *const ::libc::c_char,
+                string.len(),
                 !null_terminated as i32,
             ))
         }
@@ -594,7 +611,7 @@ impl Context {
     ///     builder.build_call(callable_value, params, "exit").unwrap();
     /// }
     ///
-    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-0"))]
+    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-0", feature = "llvm19-1"))]
     /// builder.build_indirect_call(asm_fn, asm, params, "exit").unwrap();
     ///
     /// builder.build_return(None).unwrap();
@@ -1476,7 +1493,7 @@ impl<'ctx> ContextRef<'ctx> {
     ///     builder.build_call(callable_value, params, "exit").unwrap();
     /// }
     ///
-    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-0"))]
+    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-0", feature = "llvm19-1"))]
     /// builder.build_indirect_call(asm_fn, asm, params, "exit").unwrap();
     ///
     /// builder.build_return(None).unwrap();

@@ -12,7 +12,7 @@ use llvm_sys::core::{
     LLVMDisposeModule, LLVMDumpModule, LLVMGetFirstFunction, LLVMGetFirstGlobal, LLVMGetLastFunction,
     LLVMGetLastGlobal, LLVMGetModuleContext, LLVMGetModuleIdentifier, LLVMGetNamedFunction, LLVMGetNamedGlobal,
     LLVMGetNamedMetadataNumOperands, LLVMGetNamedMetadataOperands, LLVMGetTarget, LLVMPrintModuleToFile,
-    LLVMPrintModuleToString, LLVMSetDataLayout, LLVMSetModuleIdentifier, LLVMSetTarget, LLVMDisposeMessage
+    LLVMPrintModuleToString, LLVMSetDataLayout, LLVMSetModuleIdentifier, LLVMSetTarget,
 };
 #[llvm_versions(7..)]
 use llvm_sys::core::{LLVMAddModuleFlag, LLVMGetModuleFlag};
@@ -1461,7 +1461,8 @@ impl<'ctx> Module<'ctx> {
             feature = "llvm15-0",
             feature = "llvm16-0",
             feature = "llvm17-0",
-            feature = "llvm18-0"
+            feature = "llvm18-0",
+            feature = "llvm19-1"
         ))]
         sysroot: &str,
         #[cfg(any(
@@ -1472,7 +1473,8 @@ impl<'ctx> Module<'ctx> {
             feature = "llvm15-0",
             feature = "llvm16-0",
             feature = "llvm17-0",
-            feature = "llvm18-0"
+            feature = "llvm18-0",
+            feature = "llvm19-1"
         ))]
         sdk: &str,
     ) -> (DebugInfoBuilder<'ctx>, DICompileUnit<'ctx>) {
@@ -1499,7 +1501,8 @@ impl<'ctx> Module<'ctx> {
                 feature = "llvm15-0",
                 feature = "llvm16-0",
                 feature = "llvm17-0",
-                feature = "llvm18-0"
+                feature = "llvm18-0",
+                feature = "llvm19-1"
             ))]
             sysroot,
             #[cfg(any(
@@ -1510,7 +1513,8 @@ impl<'ctx> Module<'ctx> {
                 feature = "llvm15-0",
                 feature = "llvm16-0",
                 feature = "llvm17-0",
-                feature = "llvm18-0"
+                feature = "llvm18-0",
+                feature = "llvm19-1"
             ))]
             sdk,
         )

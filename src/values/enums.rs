@@ -271,7 +271,8 @@ impl<'ctx> BasicValueEnum<'ctx> {
                 feature = "llvm15-0",
                 feature = "llvm16-0",
                 feature = "llvm17-0",
-                feature = "llvm18-0"
+                feature = "llvm18-0",
+                feature = "llvm19-1"
             ))]
             LLVMTypeKind::LLVMScalableVectorTypeKind => {
                 BasicValueEnum::ScalableVectorValue(ScalableVectorValue::new(value))

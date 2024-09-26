@@ -20,6 +20,7 @@ use std::fmt::{self, Display};
 /// for the first input string that isn't known.
 ///
 /// Each LLVM version has a different set of pre-defined metadata kinds.
+// See include/llvm/IR/FixedMetadataKinds.def
 pub const FIRST_CUSTOM_METADATA_KIND_ID: u32 = if cfg!(feature = "llvm4-0") {
     22
 } else if cfg!(feature = "llvm5-0") {
@@ -40,6 +41,8 @@ pub const FIRST_CUSTOM_METADATA_KIND_ID: u32 = if cfg!(feature = "llvm4-0") {
     39
 } else if cfg!(feature = "llvm18-0") {
     40
+} else if cfg!(feature = "llvm19-1") {
+    41
 } else {
     panic!("Unhandled LLVM version")
 };
