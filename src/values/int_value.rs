@@ -6,11 +6,13 @@ use llvm_sys::core::{
     LLVMConstSIToFP, LLVMConstUIToFP, LLVMConstZExt, LLVMConstZExtOrBitCast,
 };
 use llvm_sys::core::{
-    LLVMConstAdd, LLVMConstBitCast, LLVMConstICmp, LLVMConstIntGetSExtValue, LLVMConstIntGetZExtValue,
-    LLVMConstIntToPtr, LLVMConstMul, LLVMConstNSWAdd, LLVMConstNSWMul, LLVMConstNSWNeg, LLVMConstNSWSub,
-    LLVMConstNUWAdd, LLVMConstNUWMul, LLVMConstNUWNeg, LLVMConstNUWSub, LLVMConstNeg, LLVMConstNot, LLVMConstShl,
-    LLVMConstSub, LLVMConstTrunc, LLVMConstTruncOrBitCast, LLVMConstXor, LLVMIsAConstantInt,
+    LLVMConstAdd, LLVMConstBitCast, LLVMConstIntGetSExtValue, LLVMConstIntGetZExtValue, LLVMConstIntToPtr,
+    LLVMConstMul, LLVMConstNSWAdd, LLVMConstNSWMul, LLVMConstNSWNeg, LLVMConstNSWSub, LLVMConstNUWAdd, LLVMConstNUWMul,
+    LLVMConstNUWSub, LLVMConstNeg, LLVMConstNot, LLVMConstSub, LLVMConstTrunc,
+    LLVMConstTruncOrBitCast, LLVMConstXor, LLVMIsAConstantInt,
 };
+#[llvm_versions(..=18)]
+use llvm_sys::core::{LLVMConstICmp, LLVMConstShl, LLVMConstNUWNeg};
 use llvm_sys::prelude::LLVMValueRef;
 
 use std::convert::TryFrom;
@@ -26,6 +28,7 @@ use crate::values::FloatValue;
 #[llvm_versions(..=16)]
 use crate::values::{BasicValue, BasicValueEnum};
 use crate::values::{InstructionValue, PointerValue, Value};
+#[llvm_versions(..=18)]
 use crate::IntPredicate;
 
 use super::AnyValue;
@@ -93,8 +96,15 @@ impl<'ctx> IntValue<'ctx> {
         unsafe { IntValue::new(LLVMConstNSWNeg(self.as_value_ref())) }
     }
 
+    #[llvm_versions(..=18)]
     pub fn const_nuw_neg(self) -> Self {
         unsafe { IntValue::new(LLVMConstNUWNeg(self.as_value_ref())) }
+    }
+
+    #[llvm_versions(19.1..)]
+    #[deprecated(note = "`nuw neg` is removed in LLVM 19, use `const_neg` instead")]
+    pub fn const_nuw_neg(self) -> Self {
+        unsafe { IntValue::new(LLVMConstNeg(self.as_value_ref())) }
     }
 
     pub fn const_add(self, rhs: IntValue<'ctx>) -> Self {
@@ -202,6 +212,7 @@ impl<'ctx> IntValue<'ctx> {
     }
 
     // TODO: Give shift methods more descriptive names
+    #[llvm_versions(..=18)]
     pub fn const_shl(self, rhs: IntValue<'ctx>) -> Self {
         unsafe { IntValue::new(LLVMConstShl(self.as_value_ref(), rhs.as_value_ref())) }
     }
@@ -269,6 +280,7 @@ impl<'ctx> IntValue<'ctx> {
     }
 
     // SubType: rhs same as lhs; return IntValue<bool>
+    #[llvm_versions(..=18)]
     pub fn const_int_compare(self, op: IntPredicate, rhs: IntValue<'ctx>) -> IntValue<'ctx> {
         unsafe { IntValue::new(LLVMConstICmp(op.into(), self.as_value_ref(), rhs.as_value_ref())) }
     }

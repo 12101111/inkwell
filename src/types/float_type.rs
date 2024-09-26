@@ -128,9 +128,9 @@ impl<'ctx> FloatType<'ctx> {
     /// assert_eq!(f64_val.print_to_string().to_string(), "double 0x7FF0000000000000");
     /// ```
     pub unsafe fn const_float_from_string(self, slice: &str) -> FloatValue<'ctx> {
-    	assert!(!slice.is_empty());
+        assert!(!slice.is_empty());
 
-    	unsafe {
+        unsafe {
             FloatValue::new(LLVMConstRealOfStringAndSize(
                 self.as_type_ref(),
                 slice.as_ptr() as *const ::libc::c_char,
@@ -235,7 +235,8 @@ impl<'ctx> FloatType<'ctx> {
             feature = "llvm15-0",
             feature = "llvm16-0",
             feature = "llvm17-0",
-            feature = "llvm18-0"
+            feature = "llvm18-0",
+            feature = "llvm19-1"
         ),
         deprecated(
             note = "Starting from version 15.0, LLVM doesn't differentiate between pointer types. Use Context::ptr_type instead."
