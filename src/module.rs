@@ -464,6 +464,8 @@ impl<'ctx> Module<'ctx> {
     pub fn create_execution_engine(&self) -> Result<ExecutionEngine<'ctx>, LLVMString> {
         ExecutionEngine::link_in_mc_jit();
         ExecutionEngine::link_in_interpreter();
+
+        #[cfg(not(feature = "disable-alltargets-init"))]
         Target::initialize_native(&InitializationConfig::default()).map_err(|mut err_string| {
             err_string.push('\0');
 
@@ -515,6 +517,8 @@ impl<'ctx> Module<'ctx> {
     // SubType: ExecutionEngine<Interpreter>
     pub fn create_interpreter_execution_engine(&self) -> Result<ExecutionEngine<'ctx>, LLVMString> {
         ExecutionEngine::link_in_interpreter();
+
+        #[cfg(not(feature = "disable-alltargets-init"))]
         Target::initialize_native(&InitializationConfig::default()).map_err(|mut err_string| {
             err_string.push('\0');
 
@@ -571,6 +575,8 @@ impl<'ctx> Module<'ctx> {
         opt_level: OptimizationLevel,
     ) -> Result<ExecutionEngine<'ctx>, LLVMString> {
         ExecutionEngine::link_in_mc_jit();
+
+        #[cfg(not(feature = "disable-alltargets-init"))]
         Target::initialize_native(&InitializationConfig::default()).map_err(|mut err_string| {
             err_string.push('\0');
 
@@ -657,6 +663,7 @@ impl<'ctx> Module<'ctx> {
         ExecutionEngine::link_in_mc_jit();
 
         // 1) Initialize the native target
+        #[cfg(not(feature = "disable-alltargets-init"))]
         Target::initialize_native(&InitializationConfig::default()).map_err(|mut err_string| {
             err_string.push('\0');
             LLVMString::create_from_str(&err_string)
