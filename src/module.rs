@@ -198,6 +198,18 @@ impl<'ctx> Module<'ctx> {
         self.module.get()
     }
 
+    /// Acquires the underlying raw pointer belonging to this `Module` type and drop this `Module`
+    pub fn into_raw(self) -> LLVMModuleRef {
+        let module = self.module.get();
+        let verify = Self::verify_raw(module);
+        assert!(
+            verify.is_ok(),
+            "Cloning a Module seems to segfault when module is not valid. We are preventing that here. Error: {}",
+            verify.unwrap_err()
+        );
+        unsafe { LLVMCloneModule(module) }
+    }
+
     /// Creates a function given its `name` and `ty`, adds it to the `Module`
     /// and returns it.
     ///
@@ -862,6 +874,27 @@ impl<'ctx> Module<'ctx> {
         unsafe { MemoryBuffer::new(memory_buffer) }
     }
 
+    fn verify_raw(module: LLVMModuleRef) -> Result<(), LLVMString> {
+        let mut err_str = MaybeUninit::uninit();
+
+        let action = LLVMVerifierFailureAction::LLVMReturnStatusAction;
+
+        let code = unsafe { LLVMVerifyModule(module, action, err_str.as_mut_ptr()) };
+
+        let err_str = unsafe { err_str.assume_init() };
+        let err_str = if !err_str.is_null() {
+            unsafe { Some(LLVMString::new(err_str)) }
+        } else {
+            None
+        };
+
+        if code == 1 {
+            Err(err_str.unwrap_or_else(|| LLVMString::create_from_str("Verify failed\0")))
+        } else {
+            Ok(())
+        }
+    }
+
     /// Check whether the current [`Module`] is valid.
     ///
     /// The error variant is an LLVM-allocated string.
@@ -869,20 +902,7 @@ impl<'ctx> Module<'ctx> {
     /// # Remarks
     /// See also: [`LLVMVerifyModule`](https://llvm.org/doxygen/group__LLVMCAnalysis.html#ga5645aec2d95116c0432a676db77b2cb0).
     pub fn verify(&self) -> Result<(), LLVMString> {
-        let mut err_str = MaybeUninit::uninit();
-
-        let action = LLVMVerifierFailureAction::LLVMReturnStatusAction;
-
-        let code = unsafe { LLVMVerifyModule(self.module.get(), action, err_str.as_mut_ptr()) };
-
-        let err_str = unsafe { err_str.assume_init() };
-        if code == 1 && !err_str.is_null() {
-            return unsafe { Err(LLVMString::new(err_str)) };
-        }
-
-        unsafe { LLVMDisposeMessage(err_str) };
-
-        Ok(())
+        Self::verify_raw(self.module.get())
     }
 
     fn get_borrowed_data_layout(module: LLVMModuleRef) -> DataLayout {
