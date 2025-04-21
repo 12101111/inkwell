@@ -88,6 +88,7 @@ use llvm_sys::LLVMInlineAsmDialect;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+pub use either::Either;
 
 // Thanks to kennytm for coming up with assert_unique_features!
 // which ensures that the LLVM feature flags are mutually exclusive
