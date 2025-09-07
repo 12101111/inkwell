@@ -140,14 +140,17 @@ impl<'ctx> IntValue<'ctx> {
         unsafe { IntValue::new(LLVMConstNUWSub(self.as_value_ref(), rhs.as_value_ref())) }
     }
 
+    #[llvm_versions(..=20)]
     pub fn const_mul(self, rhs: IntValue<'ctx>) -> Self {
         unsafe { IntValue::new(LLVMConstMul(self.as_value_ref(), rhs.as_value_ref())) }
     }
 
+    #[llvm_versions(..=20)]
     pub fn const_nsw_mul(self, rhs: IntValue<'ctx>) -> Self {
         unsafe { IntValue::new(LLVMConstNSWMul(self.as_value_ref(), rhs.as_value_ref())) }
     }
 
+    #[llvm_versions(..=20)]
     pub fn const_nuw_mul(self, rhs: IntValue<'ctx>) -> Self {
         unsafe { IntValue::new(LLVMConstNUWMul(self.as_value_ref(), rhs.as_value_ref())) }
     }
