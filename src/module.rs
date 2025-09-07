@@ -8,7 +8,7 @@ use llvm_sys::bit_writer::{LLVMWriteBitcodeToFile, LLVMWriteBitcodeToMemoryBuffe
 use llvm_sys::core::LLVMGetTypeByName;
 use llvm_sys::core::{
     LLVMAddFunction, LLVMAddGlobal, LLVMAddGlobalInAddressSpace, LLVMAddNamedMetadataOperand, LLVMCloneModule,
-    LLVMDisposeMessage, LLVMDisposeModule, LLVMDumpModule, LLVMGetFirstFunction, LLVMGetFirstGlobal,
+    LLVMDisposeModule, LLVMDumpModule, LLVMGetFirstFunction, LLVMGetFirstGlobal,
     LLVMGetLastFunction, LLVMGetLastGlobal, LLVMGetModuleContext, LLVMGetModuleIdentifier, LLVMGetNamedFunction,
     LLVMGetNamedGlobal, LLVMGetNamedMetadataNumOperands, LLVMGetNamedMetadataOperands, LLVMGetTarget,
     LLVMPrintModuleToFile, LLVMPrintModuleToString, LLVMSetDataLayout, LLVMSetModuleIdentifier,
@@ -1571,7 +1571,8 @@ impl<'ctx> Module<'ctx> {
             feature = "llvm17-0",
             feature = "llvm18-1",
             feature = "llvm19-1",
-            feature = "llvm20-1"
+            feature = "llvm20-1",
+            feature = "llvm21-1"
         ))]
         sysroot: &str,
         #[cfg(any(
@@ -1584,7 +1585,8 @@ impl<'ctx> Module<'ctx> {
             feature = "llvm17-0",
             feature = "llvm18-1",
             feature = "llvm19-1",
-            feature = "llvm20-1"
+            feature = "llvm20-1",
+            feature = "llvm21-1"
         ))]
         sdk: &str,
     ) -> (DebugInfoBuilder<'ctx>, DICompileUnit<'ctx>) {
@@ -1613,7 +1615,8 @@ impl<'ctx> Module<'ctx> {
                 feature = "llvm17-0",
                 feature = "llvm18-1",
                 feature = "llvm19-1",
-                feature = "llvm20-1"
+                feature = "llvm20-1",
+                feature = "llvm21-1"
             ))]
             sysroot,
             #[cfg(any(
@@ -1626,7 +1629,8 @@ impl<'ctx> Module<'ctx> {
                 feature = "llvm17-0",
                 feature = "llvm18-1",
                 feature = "llvm19-1",
-                feature = "llvm20-1"
+                feature = "llvm20-1",
+                feature = "llvm21-1"
             ))]
             sdk,
         )
