@@ -24,14 +24,24 @@ use llvm_sys::core::{
     LLVMX86FP80TypeInContext,
 };
 
+#[llvm_versions(..22)]
+use llvm_sys::core::LLVMGetGlobalContext;
+
 #[llvm_versions(..19)]
 use llvm_sys::core::LLVMConstStringInContext;
 
 #[llvm_versions(19..)]
 use llvm_sys::core::LLVMConstStringInContext2;
 
+#[allow(deprecated)]
+use llvm_sys::core::{LLVMMDNodeInContext, LLVMMDStringInContext};
+
+#[llvm_versions(..22)]
 use llvm_sys::ir_reader::LLVMParseIRInContext;
 use llvm_sys::prelude::LLVMMetadataRef;
+#[llvm_versions(22..)]
+use llvm_sys::ir_reader::LLVMParseIRInContext2;
+
 use llvm_sys::prelude::{LLVMContextRef, LLVMDiagnosticInfoRef, LLVMTypeRef, LLVMValueRef};
 use llvm_sys::target::{LLVMIntPtrTypeForASInContext, LLVMIntPtrTypeInContext};
 use once_cell::sync::Lazy;
@@ -68,7 +78,20 @@ use std::thread_local;
 // This is still technically unsafe because another program in the same process
 // could also be accessing the global context via the C API. `get_global` has been
 // marked unsafe for this reason. Iff this isn't the case then this should be fully safe.
-static GLOBAL_CTX: Lazy<Mutex<Context>> = Lazy::new(|| unsafe { Mutex::new(Context::new(LLVMGetGlobalContext())) });
+static GLOBAL_CTX: Lazy<Mutex<Context>> = Lazy::new(|| {
+    let context = {
+        #[cfg(feature = "llvm22-1")]
+        {
+            Context::create()
+        }
+        #[cfg(not(feature = "llvm22-1"))]
+        unsafe {
+            Context::new(LLVMGetGlobalContext())
+        }
+    };
+
+    Mutex::new(context)
+});
 
 thread_local! {
     pub(crate) static GLOBAL_CTX_LOCK: Lazy<MutexGuard<'static, Context>> = Lazy::new(|| {
@@ -106,7 +129,10 @@ impl ContextImpl {
         let mut module = ptr::null_mut();
         let mut err_str = ptr::null_mut();
 
+        #[cfg(not(feature = "llvm22-1"))]
         let code = unsafe { LLVMParseIRInContext(self.0, memory_buffer.memory_buffer, &mut module, &mut err_str) };
+        #[cfg(feature = "llvm22-1")]
+        let code = unsafe { LLVMParseIRInContext2(self.0, memory_buffer.memory_buffer, &mut module, &mut err_str) };
 
         forget(memory_buffer);
 
@@ -213,6 +239,7 @@ impl ContextImpl {
         feature = "llvm19-1",
         feature = "llvm20-1",
         feature = "llvm21-1",
+        feature = "llvm22-1",
     ))]
     fn bf16_type<'ctx>(&self) -> FloatType<'ctx> {
         unsafe { FloatType::new(LLVMBFloatTypeInContext(self.0)) }
@@ -588,7 +615,7 @@ impl Context {
     ///     builder.build_call(callable_value, params, "exit").unwrap();
     /// }
     ///
-    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-1", feature = "llvm19-1", feature = "llvm20-1", feature = "llvm21-1"))]
+    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-1", feature = "llvm19-1", feature = "llvm20-1", feature = "llvm21-1", feature = "llvm22-1"))]
     /// builder.build_indirect_call(asm_fn, asm, params, "exit").unwrap();
     ///
     /// builder.build_return(None).unwrap();
@@ -843,6 +870,7 @@ impl Context {
         feature = "llvm19-1",
         feature = "llvm20-1",
         feature = "llvm21-1",
+        feature = "llvm22-1",
     ))]
     #[inline]
     pub fn bf16_type(&self) -> FloatType<'_> {
@@ -1464,7 +1492,7 @@ impl<'ctx> ContextRef<'ctx> {
     ///     builder.build_call(callable_value, params, "exit").unwrap();
     /// }
     ///
-    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-1", feature = "llvm19-1", feature = "llvm20-1", feature = "llvm21-1"))]
+    /// #[cfg(any(feature = "llvm15-0", feature = "llvm16-0", feature = "llvm17-0", feature = "llvm18-1", feature = "llvm19-1", feature = "llvm20-1", feature = "llvm21-1", feature = "llvm22-1"))]
     /// builder.build_indirect_call(asm_fn, asm, params, "exit").unwrap();
     ///
     /// builder.build_return(None).unwrap();
@@ -1719,6 +1747,7 @@ impl<'ctx> ContextRef<'ctx> {
         feature = "llvm19-1",
         feature = "llvm20-1",
         feature = "llvm21-1",
+        feature = "llvm22-1",
     ))]
     #[inline]
     pub fn bf16_type(&self) -> FloatType<'ctx> {
