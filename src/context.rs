@@ -16,7 +16,7 @@ use llvm_sys::core::{
     LLVMAppendBasicBlockInContext, LLVMBFloatTypeInContext, LLVMConstStructInContext, LLVMContextCreate,
     LLVMContextDispose, LLVMContextSetDiagnosticHandler, LLVMCreateBuilderInContext, LLVMCreateEnumAttribute,
     LLVMCreateStringAttribute, LLVMDoubleTypeInContext, LLVMFP128TypeInContext, LLVMFloatTypeInContext,
-    LLVMGetGlobalContext, LLVMGetInlineAsm, LLVMGetMDKindIDInContext, LLVMHalfTypeInContext,
+    LLVMGetInlineAsm, LLVMGetMDKindIDInContext, LLVMHalfTypeInContext,
     LLVMInsertBasicBlockInContext, LLVMInt16TypeInContext, LLVMInt1TypeInContext, LLVMInt32TypeInContext,
     LLVMInt64TypeInContext, LLVMInt8TypeInContext, LLVMIntTypeInContext, LLVMMDNodeInContext2, LLVMMDStringInContext2,
     LLVMMetadataAsValue, LLVMMetadataTypeInContext, LLVMModuleCreateWithNameInContext, LLVMPPCFP128TypeInContext,
@@ -365,7 +365,7 @@ impl ContextImpl {
         let c_string = to_c_str(string);
 
         unsafe {
-            let metadata = LLVMMDStringInContext2(self.0, c_string.as_ptr(), c_string.to_bytes_with_nul().len());
+            let metadata = LLVMMDStringInContext2(self.0, c_string.as_ptr(), c_string.to_bytes().len());
             MetadataValue::new(LLVMMetadataAsValue(self.0, metadata))
         }
     }

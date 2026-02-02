@@ -155,6 +155,7 @@ disable-alltargets-init = [
     "llvm-sys-191?/disable-alltargets-init",
     "llvm-sys-201?/disable-alltargets-init",
     "llvm-sys-211?/disable-alltargets-init",
+    "llvm-sys-221?/disable-alltargets-init",
 ]
 experimental = ["static-alloc"]
 nightly = ["inkwell_internals/nightly"]
