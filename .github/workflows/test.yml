@@ -40,6 +40,7 @@ jobs:
         - [ "19.1", "19-1", "19" ]
         - [ "20.1", "20-1", "20" ]
         - [ "21.1", "21-1", "21" ]
+        - [ "22.1", "22-1", "22" ]
         include:
         - os: ubuntu-latest
     steps:
@@ -53,7 +54,9 @@ jobs:
       if: ${{ matrix.llvm-version[0] >= 19 }}
       run: |
         sudo apt install --no-install-recommends -y lsb-release wget software-properties-common gnupg
-        wget https://apt.llvm.org/llvm.sh
+        # TODO: move back to https://apt.llvm.org/llvm.sh (once the file is properly synced)
+        # Issue link: https://github.com/llvm/llvm-project/issues/183715
+        wget https://raw.githubusercontent.com/opencollab/llvm-jenkins.debian.net/refs/heads/master/llvm.sh
         chmod +x llvm.sh
         sudo ./llvm.sh ${{ matrix.llvm-version[2] }}
         sudo apt-get update
