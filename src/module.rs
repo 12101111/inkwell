@@ -54,7 +54,9 @@ use crate::passes::PassBuilderOptions;
 use crate::support::{to_c_str, LLVMString};
 #[llvm_versions(13..)]
 use crate::targets::TargetMachine;
-use crate::targets::{CodeModel, InitializationConfig, Target, TargetTriple};
+use crate::targets::{CodeModel, TargetTriple};
+#[cfg(not(feature = "disable-alltargets-init"))]
+use crate::targets::{InitializationConfig, Target};
 use crate::types::{AsTypeRef, BasicType, FunctionType, StructType};
 
 use crate::values::BasicValue;
@@ -196,6 +198,18 @@ impl<'ctx> Module<'ctx> {
     /// Acquires the underlying raw pointer belonging to this `Module` type.
     pub fn as_mut_ptr(&self) -> LLVMModuleRef {
         self.module.get()
+    }
+
+    /// Acquires the underlying raw pointer belonging to this `Module` type and drop this `Module`
+    pub fn into_raw(self) -> LLVMModuleRef {
+        let module = self.module.get();
+        let verify = Self::verify_raw(module);
+        assert!(
+            verify.is_ok(),
+            "Cloning a Module seems to segfault when module is not valid. We are preventing that here. Error: {}",
+            verify.unwrap_err()
+        );
+        unsafe { LLVMCloneModule(module) }
     }
 
     /// Creates a function given its `name` and `ty`, adds it to the `Module`
@@ -861,11 +875,15 @@ impl<'ctx> Module<'ctx> {
     /// # Remarks
     /// See also: [`LLVMVerifyModule`](https://llvm.org/doxygen/group__LLVMCAnalysis.html#ga5645aec2d95116c0432a676db77b2cb0).
     pub fn verify(&self) -> Result<(), LLVMString> {
+        Self::verify_raw(self.module.get())
+    }
+
+    fn verify_raw(module: LLVMModuleRef) -> Result<(), LLVMString> {
         let mut err_str: *mut ::libc::c_char = ::core::ptr::null_mut();
 
         let action = LLVMVerifierFailureAction::LLVMReturnStatusAction;
 
-        let code = unsafe { LLVMVerifyModule(self.module.get(), action, &mut err_str) };
+        let code = unsafe { LLVMVerifyModule(module, action, &mut err_str) };
 
         if code == 1 && !err_str.is_null() {
             return unsafe { Err(LLVMString::new(err_str)) };
